@@ -1,0 +1,102 @@
+- name: Configure Loopback interface on RO_1
+  ios_config:
+    lines:
+      - "interface Loopback0"
+      - "ip address {{ devices.RO_1.loopback }}"
+  when: inventory_hostname == 'RO_1'
+
+- name: Configure EIGRP networks on RO_1
+  ios_config:
+    lines:
+      - "router eigrp {{ eigrp_as_number }}"
+      - "network {{ devices.RO_1.networks[0] }}"
+      - "network {{ devices.RO_1.networks[1] }}"
+      - "network {{ devices.RO_1.networks[2] }}"
+  when: inventory_hostname == 'RO_1'
+
+- name: Configure summary routes on RO_1
+  ios_config:
+    lines:
+      - "interface {{ devices.RO_1.summary_routes[0].split()[0] }}"
+      - "ip summary-address eigrp {{ eigrp_as_number }} {{ devices.RO_1.summary_routes[0].split()[1] }} {{ devices.RO_1.summary_routes[0].split()[2] }}"
+      - "interface {{ devices.RO_1.summary_routes[1].split()[0] }}"
+      - "ip summary-address eigrp {{ eigrp_as_number }} {{ devices.RO_1.summary_routes[1].split()[1] }} {{ devices.RO_1.summary_routes[1].split()[2] }}"
+  when: inventory_hostname == 'RO_1'
+
+- name: Configure Loopback interface on SW_L3_1
+  ios_config:
+    lines:
+      - "interface Loopback0"
+      - "ip address {{ devices.SW_L3_1.loopback }}"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Configure EIGRP networks on SW_L3_1
+  ios_config:
+    lines:
+      - "router eigrp {{ eigrp_as_number }}"
+      - "network {{ devices.SW_L3_1.networks[0] }}"
+      - "network {{ devices.SW_L3_1.networks[1] }}"
+      - "network {{ devices.SW_L3_1.networks[2] }}"
+      - "network {{ devices.SW_L3_1.networks[3] }}"
+      - "network {{ devices.SW_L3_1.networks[4] }}"
+      - "network {{ devices.SW_L3_1.networks[5] }}"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Configure passive interfaces on SW_L3_1
+  ios_config:
+    lines:
+      - "router eigrp 20"
+      - "no auto-summary"
+      - "passive-interface Vlan 20"
+      - "passive-interface Vlan 30"
+      - "passive-interface Vlan 40"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Remove static routes on SW_L3_1
+  ios_config:
+    lines:
+      - "no ip route {{ devices.SW_L3_1.remove_static_routes[0] }}"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Configure Loopback interface on SW_L3_2
+  ios_config:
+    lines:
+      - "interface Loopback0"
+      - "ip address {{ devices.SW_L3_2.loopback }}"
+  when: inventory_hostname == 'SW_L3_2'
+
+- name: Configure EIGRP networks on SW_L3_2
+  ios_config:
+    lines:
+      - "router eigrp {{ eigrp_as_number }}"
+      - "network {{ devices.SW_L3_2.networks[0] }}"
+      - "network {{ devices.SW_L3_2.networks[1] }}"
+      - "network {{ devices.SW_L3_2.networks[2] }}"
+      - "network {{ devices.SW_L3_2.networks[3] }}"
+      - "network {{ devices.SW_L3_2.networks[4] }}"
+      - "network {{ devices.SW_L3_2.networks[5] }}"
+  when: inventory_hostname == 'SW_L3_2'
+
+- name: Configure passive interfaces on SW_L3_2
+  ios_config:
+    lines:
+      - "router eigrp 20"
+      - "no auto-summary"
+      - "passive-interface Vlan 20"
+      - "passive-interface Vlan 30"
+      - "passive-interface Vlan 40"
+  when: inventory_hostname == 'SW_L3_2'
+  
+- name: Remove static routes on SW_L3_2
+  ios_config:
+    lines:
+      - "no ip route {{ devices.SW_L3_2.remove_static_routes[0] }}"
+  when: inventory_hostname == 'SW_L3_2'
+
+- name: Remove static routes on RO_1
+  ios_config:
+    lines:
+      - "no ip route {{ devices.RO_1.remove_static_routes[0] }}"
+  when: inventory_hostname == 'RO_1'
+  
+

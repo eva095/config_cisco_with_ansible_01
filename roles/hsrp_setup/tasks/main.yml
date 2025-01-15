@@ -1,0 +1,48 @@
+- name: check vars
+  debug:
+    var: vlans
+
+- name: Удаление интерфейсов VLAN на SW_L3_1 перед созданием
+  ios_config:
+    lines:
+      - "no interface Vlan{{ item.id }}"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_1'
+  ignore_errors: yes
+  
+- name: Удаление интерфейсов VLAN на SW_L3_2 перед созданием
+  ios_config:
+    lines:
+      - "no interface Vlan{{ item.id }}"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_2'
+  ignore_errors: yes
+
+- name: Настройка интерфейсов VLAN и HSRP для SW_L3_1
+  ios_config:
+    lines:
+      - "interface Vlan{{ item.id }}"
+      - "ip address {{ item.sw_l3_1_ip }} {{ item.mask }}"
+      - "standby {{ item.group }} ip {{ item.hsrp_ip }}"
+      - "standby {{ item.group }} priority {{ item.priority }}"
+      - "standby {{ item.group }} preempt"
+      - "no shutdown"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Настройка интерфейсов VLAN и HSRP для SW_L3_2
+  ios_config:
+    lines:
+      - "interface Vlan{{ item.id }}"
+      - "ip address {{ item.sw_l3_2_ip }} {{ item.mask }}"
+      - "standby {{ item.group }} ip {{ item.hsrp_ip }}"
+      - "no shutdown"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_2'
+
+- name: Сохранение конфигурации на всех устройствах
+  ios_config:
+    lines:
+      - "do write memory"
+
+

@@ -1,0 +1,7 @@
+- name: Configure OSPF on RO_1 and RO_2
+  hosts: 
+    - RO_1
+    - RO_2
+  gather_facts: no
+  roles:
+    - ospf_setup

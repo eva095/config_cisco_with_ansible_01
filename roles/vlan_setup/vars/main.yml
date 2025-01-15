@@ -1,0 +1,43 @@
+vlans:
+  - id: 20
+    name: "VLAN_20"
+    ip: "10.20.1.7"
+    subnet: "255.255.255.0"
+  - id: 30
+    name: "VLAN_30"
+    ip: "10.30.1.7"
+    subnet: "255.255.255.0"
+  - id: 40
+    name: "VLAN_40"
+    ip: "10.40.1.7"
+    subnet: "255.255.255.0"
+
+switches:
+  SW_L2_1:
+    switch: "SW_L2_1"
+    access_ports:
+      - { interface: "fa1/1", vlan: 20 }
+      - { interface: "fa1/2", vlan: 30 }
+    trunk_ports:
+      - { interface: "fa1/13" }
+      - { interface: "fa1/15" }
+  SW_L2_2:
+    switch: "SW_L2_2"
+    access_ports:
+      - { interface: "fa1/1", vlan: 20 }
+      - { interface: "fa1/2", vlan: 30 }
+    trunk_ports:
+      - { interface: "fa1/13" }
+      - { interface: "fa1/15" }
+  SW_L3_1:
+    switch: "SW_L3_1"
+    trunk_ports:
+      - { interface: "fa1/15" }
+      - { interface: "fa1/13 "}
+  SW_L3_2:
+    switch: "SW_L3_2"
+    access_ports:
+      - { interface: "fa1/5", vlan: 40 }  # Новый порт VLAN 40
+    trunk_ports:
+      - { interface: "fa1/15" }
+      - { interface: "fa1/13 "}

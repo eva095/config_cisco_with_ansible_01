@@ -1,0 +1,11 @@
+# roles/stp_setup/vars/main.yml
+
+stp_vlans:
+  - vlan: 20
+    priority: 4096
+  - vlan: 30
+    priority: 4096
+  - vlan: 10
+    priority: 4096
+  - vlan: 40
+    priority: 4096

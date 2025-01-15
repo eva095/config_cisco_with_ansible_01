@@ -1,0 +1,6 @@
+---
+- name: Настройка VLAN-ов на Cisco-коммутаторах
+  hosts: switches
+  gather_facts: no
+  roles:
+    - vlan_setup

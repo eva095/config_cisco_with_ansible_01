@@ -1,0 +1,7 @@
+- name: hsrp setting
+  hosts: 
+    - SW_L3_1
+    - SW_L3_2
+  gather_facts: no 
+  roles:
+    - hsrp_setup

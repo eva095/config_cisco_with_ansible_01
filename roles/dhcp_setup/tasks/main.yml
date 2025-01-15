@@ -1,0 +1,21 @@
+---
+- name: Exclude DHCP addresses
+  ios_config:
+    lines:
+      - "ip dhcp excluded-address {{ item }}"
+  loop: "{{ dhcp_excluded_addresses }}"
+
+- name: Create DHCP pool VLAN20
+  ios_config:
+    lines:
+      - "network {{ item.network }}"
+      - "default-router {{ item.default_router }}"
+      - "dns-server {{ item.dns_server }}"
+    parents: "ip dhcp pool {{ item.name }}"
+  loop: "{{ dhcp_pools }}"
+
+
+- name: Сохранение конфигурации на всех устройствах
+      ios_config:
+        lines:
+          - "do write memory"

@@ -1,0 +1,16 @@
+ospf_process_id: 20
+ospf_networks:
+  - { network: "10.70.1.8", wildcard: "0.0.0.3", area: 0 }
+  - { network: "10.20.6.3", wildcard: "0.0.0.0", area: 0 }
+  - { network: "10.20.6.4", wildcard: "0.0.0.0", area: 0 }
+  - { network: "10.20.4.0", wildcard: "0.0.0.127", area: 0 }
+redistribute_eigrp: true
+eigrp_as: 20
+loopback_ip: "10.20.6.4"
+loopback_mask: "255.255.255.255"
+static_routes:
+  - { target: "0.0.0.0", mask: "0.0.0.0", next_hop: "10.70.1.9", router: "RO_2" }
+  - { target: "10.20.4.0", mask: "255.255.255.128", next_hop: "10.70.1.10", router: "RO_1" }
+router_id: "10.20.6.4"
+passive_interface: "FastEthernet0/0"
+

@@ -1,0 +1,11 @@
+router ospf {{ ospf_process_id }}
+{% for net in ospf_networks %}
+ network {{ net.network }} {{ net.wildcard }} area {{ net.area }}
+{% endfor %}
+{% if inventory_hostname == 'RO_1' and redistribute_eigrp %}
+ redistribute eigrp {{ eigrp_as }} subnets
+{% endif %}
+{% if inventory_hostname == 'RO_2' %}
+ router-id {{ router_id }}
+ passive-interface {{ passive_interface }}
+{% endif %}

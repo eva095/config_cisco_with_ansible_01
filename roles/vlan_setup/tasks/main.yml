@@ -1,0 +1,86 @@
+---
+- name: Проверка переменных VLAN
+  debug:
+    var: vlans
+
+- name: Создание VLAN-ов на всех коммутаторах
+  ios_config:
+    lines:
+      - "vlan {{ item.id }}"
+      - "name {{ item.name }}"
+  loop: "{{ vlans }}"
+
+- name: Удаление интерфейсов VLAN на SW_L3_1 перед созданием
+  ios_config:
+    lines:
+      - "no interface Vlan{{ item.id }}"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_1'
+  ignore_errors: yes
+  
+- name: Удаление интерфейсов VLAN на SW_L3_2 перед созданием
+  ios_config:
+    lines:
+      - "no interface Vlan20"
+      - "no interface Vlan30"
+      - "no interface Vlan40"
+  when: inventory_hostname == 'SW_L3_2'
+  ignore_errors: yes
+
+- name: Настройка интерфейсов VLAN и IP-адресов на SW_L3_2 для VLAN 20, 30, 40
+  ios_config:
+    lines:
+      - "interface Vlan20"
+      - "ip address 10.20.1.8 255.255.255.0"
+      - "no shutdown"
+      - "interface Vlan30"
+      - "ip address 10.30.1.8 255.255.255.0"
+      - "no shutdown"
+      - "interface Vlan40"
+      - "ip address 10.40.1.8 255.255.255.0"
+      - "no shutdown"
+  when: inventory_hostname == 'SW_L3_2'
+
+- name: Назначение IP-адресов VLAN-ов
+  ios_config:
+    lines:
+      - "interface Vlan{{ item.id }}"
+      - "ip address {{ item.ip }} {{ item.subnet }}"
+      - "no shutdown"
+  loop: "{{ vlans }}"
+  when: inventory_hostname == 'SW_L3_1'
+
+- name: Настройка access портов на SW_L2_1 и SW_L2_2
+  ios_config:
+    lines:
+      - "interface {{ item.interface }}"
+      - "switchport mode access"
+      - "switchport access vlan {{ item.vlan }}"
+      - "no shutdown"
+  loop: "{{ switches[inventory_hostname].access_ports }}"
+  when: inventory_hostname in ['SW_L2_1', 'SW_L2_2']
+
+- name: Настройка trunk портов для всех VLAN-ов на SW_L2_1 и SW_L2_2
+  ios_config:
+    lines:
+      - "interface {{ item.interface }}"
+      - "switchport mode trunk"
+      - "switchport trunk allowed vlan 10,20,30,40,1,1002-1005"
+      - "no shutdown"
+  loop: "{{ switches[inventory_hostname].trunk_ports }}"
+  when: inventory_hostname in ['SW_L2_1', 'SW_L2_2']
+
+- name: Настройка trunk портов для всех VLAN-ов (кроме fa1/13) на SW_L3_1 и SW_L3_2
+  ios_config:
+    lines:
+      - "interface {{ item.interface }}"
+      - "switchport mode trunk"
+      - "switchport trunk allowed vlan add {{ vlans | map(attribute='id') | join(',') }}"
+      - "no shutdown"
+  loop: "{{ switches[inventory_hostname].trunk_ports }}"
+  when: inventory_hostname in ['SW_L3_1', 'SW_L3_2']
+
+- name: Сохранение конфигурации на всех устройствах
+  ios_config:
+    lines:
+      - "do write memory"

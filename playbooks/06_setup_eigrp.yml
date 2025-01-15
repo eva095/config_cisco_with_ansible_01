@@ -1,0 +1,8 @@
+- name: Configure EIGRP on Cisco devices
+  hosts: 
+    - SW_L3_1
+    - SW_L3_2
+    - RO_1
+  gather_facts: no
+  roles:
+    - eigrp_setup

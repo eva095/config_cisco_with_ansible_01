@@ -1,0 +1,29 @@
+---
+- name: Настройка STP для VLAN 20 на SW_L3_1
+  ios_config:
+    lines:
+      - "spanning-tree vlan 20 priority 4096"
+  when: inventory_hostname == "SW_L3_1"
+
+- name: Настройка STP для VLAN 30 на SW_L3_1
+  ios_config:
+    lines:
+      - "spanning-tree vlan 30 priority 4096"
+  when: inventory_hostname == "SW_L3_1"
+
+- name: Настройка STP для VLAN 10 на SW_L3_2
+  ios_config:
+    lines:
+      - "spanning-tree vlan 10 priority 4096"
+  when: inventory_hostname == "SW_L3_2"
+
+- name: Настройка STP для VLAN 40 на SW_L3_2
+  ios_config:
+    lines:
+      - "spanning-tree vlan 40 priority 4096"
+  when: inventory_hostname == "SW_L3_2"
+
+- name: Сохранение конфигурации на всех устройствах
+  ios_config:
+    lines:
+      - "do write memory"

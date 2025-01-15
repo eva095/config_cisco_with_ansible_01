@@ -1,0 +1,27 @@
+- name: Configure Loopback on RO_2
+  template:
+    src: loopback_config.j2
+    dest: /tmp/loopback_{{ inventory_hostname }}.cfg
+  when: inventory_hostname == "RO_2"
+
+- name: Apply Loopback configuration
+  ios_config:
+    src: /tmp/loopback_{{ inventory_hostname }}.cfg
+  when: inventory_hostname == "RO_2"
+
+- name: Generate OSPF configuration
+  template:
+    src: ospf_config.j2
+    dest: /tmp/ospf_{{ inventory_hostname }}.cfg
+
+- name: Apply OSPF configuration
+  ios_config:
+    src: /tmp/ospf_{{ inventory_hostname }}.cfg
+
+- name: Remove static routes
+  ios_config:
+    lines:
+      - "no ip route {{ item.target }} {{ item.mask }} {{ item.next_hop }}"
+  with_items: "{{ static_routes }}"
+  when: inventory_hostname == item.router
+
