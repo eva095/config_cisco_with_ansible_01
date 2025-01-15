@@ -52,7 +52,7 @@
 
 2. **Клонируйте репозиторий:**
    ```bash
-   git clone https://github.com/ваш_пользователь/ansible_cicso_config_proj_01.git
+   git clone https://github.com/eva_95/ansible_cicso_config_proj_01.git
    cd ansible_cicso_config_proj_01
 
 3. Запуск плейбука 
