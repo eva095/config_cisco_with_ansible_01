@@ -1,0 +1,185 @@
+
+MPLS/ VPNL3 
+____________________________________
+////////////////////////////////////
+PE_R2:
+
+router isis 1
+ net 49.0010.0100.1001.00
+
+ip vrf MyVPN1
+ rd 9000:100
+ route-target both 9000:100
+
+
+mpls ldp router-id Loopback0
+mpls ip
+
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ip router isis 1
+
+interface FastEthernet2/0
+ ip vrf forwarding MyVPN1
+ ip address 203.0.213.2 255.255.255.252
+
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ip router isis 1
+
+interface FastEthernet0/0
+ ip address 5.5.5.2 255.255.255.252
+ ip router isis 1
+ mpls ip
+
+router bgp 9000
+ neighbor 3.3.3.3 remote-as 9000
+ neighbor 3.3.3.3 update-source Loopback0
+ 
+address-family vpnv4
+ neighbor 3.3.3.3 activate
+
+ 
+address-family ipv4 vrf MyVPN1
+ redistribute connected
+ neighbor 203.0.113.1 remote-as 9001
+ neighbor 203.0.113.1 activate
+
+____________________________________
+////////////////////////////////////
+Provider_RO:
+
+mpls ip
+mpls ldp router-id Loopback0
+
+interface Loopback0
+ ip address 2.2.2.2 255.255.255.0
+ ip router isis 1
+ 
+interface FastEthernet0/0
+ ip address 5.5.5.1 255.255.255.252
+ ip router isis 1
+ mpls ip
+
+interface FastEthernet0/1
+ ip address 6.6.6.1 255.255.255.252
+ ip router isis 1
+ mpls ip
+
+router isis 1
+ net 49.0020.0200.2002.00
+
+____________________________________
+////////////////////////////////////
+PE_R1:
+
+mpls ldp router-id Loopback0
+mpls ip
+
+router isis 1
+ net 49.0030.0300.3003.00
+
+ip vrf MyVPN1
+ rd 9000:100
+ route-target both 9000:100
+ 
+
+interface Loopback0
+ ip address 3.3.3.3 255.255.255.255
+ ip router isis 1
+
+interface FastEthernet2/0
+ ip vrf forwarding MyVPN1
+ ip address 203.0.113.5 255.255.255.252
+ 
+interface FastEthernet0/1
+ ip address 6.6.6.2 255.255.255.252
+ ip router isis 1
+ mpls ip
+
+router bgp 9000
+ neighbor 2.2.2.2 remote-as 9000
+ neighbor 2.2.2.2 update-source Loopback0
+ 
+ address-family vpnv4
+  neighbor 2.2.2.2 activate
+  
+ address-family ipv4 vrf MyVPN1
+  redistribute connected
+  neighbor 203.0.113.6 remote-as 9002
+  neighbor 203.0.113.6 activate
+
+
+_______________________________________
+///////////////////////////////////////
+CE_2(otherRO):
+
+interface Loopback0
+ ip address 10.20.6.9 255.255.255.255
+
+interface FastEthernet2/0
+ ip address 213.0.113.1 255.255.255.252
+
+interface FastEthernet0/1
+ ip address 10.80.1.9 255.255.255.252
+
+
+router ospf 30
+ log-adjacency-changes
+ redistribute bgp 9001 subnets
+ network 10.20.6.8 0.0.0.0 area 1
+ network 10.20.6.9 0.0.0.0 area 1
+ network 10.30.4.0 0.0.0.127 area 1
+ network 10.80.1.8 0.0.0.3 area 1
+ default-information originate
+
+router bgp 9001
+ network 10.20.6.9 mask 255.255.255.255
+ redistribute ospf 30
+ neighbor 203.0.113.2 remote-as 9000
+ no auto-summary
+
+
+_______________________________________
+///////////////////////////////////////
+CE_1(RO_1):
+
+interface Loopback0
+ ip address 10.20.6.3 255.255.255.255
+
+interface FastEthernet0/0
+ ip address 10.70.1.2 255.255.255.252
+ ip summary-address eigrp 20 0.0.0.0 0.0.0.0 5
+ 
+
+interface FastEthernet0/1
+ ip address 10.70.1.6 255.255.255.252
+
+interface FastEthernet1/0
+ ip address 10.70.1.9 255.255.255.252
+ ip virtual-reassembly
+
+interface FastEthernet2/0
+ ip address 203.0.113.6 255.255.255.252
+
+router eigrp 20
+ network 10.20.6.3 0.0.0.0
+ network 10.70.1.0 0.0.0.3
+ network 10.70.1.4 0.0.0.3
+
+router ospf 20
+ redistribute eigrp 20 subnets
+ redistribute bgp 9002 subnets
+ network 10.20.4.0 0.0.0.127 area 0
+ network 10.20.6.3 0.0.0.0 area 0
+ network 10.20.6.4 0.0.0.0 area 0
+ network 10.70.1.8 0.0.0.3 area 0
+ default-information originate
+
+router bgp 9002
+ network 10.20.6.3 mask 255.255.255.255
+ redistribute eigrp 20
+ redistribute ospf 20
+ neighbor 203.0.113.5 remote-as 9000
+ 
+
